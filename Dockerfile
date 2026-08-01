@@ -23,10 +23,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
 # Install Python 3.10 from deadsnakes (Buildozer pinned commit requires >=3.10)
-RUN add-apt-repository ppa:deadsnakes/ppa -y \
- && apt-get update \
- && apt-get install -y --no-install-recommends python3.10 python3.10-dev python3.10-distutils \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y --no-install-recommends
+software-properties-common gnupg2 dirmngr apt-transport-https ca-certificates lsb-release
+&& add-apt-repository ppa:deadsnakes/ppa -y
+&& apt-get update
+&& apt-get install -y --no-install-recommends python3.10 python3.10-dev python3.10-distutils
+&& rm -rf /var/lib/apt/lists/*
 
 # Install pip for python3.10
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py \
