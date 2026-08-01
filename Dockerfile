@@ -12,28 +12,11 @@ ENV PATH=${PATH}:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/tool
 
 # System packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    git \
-    curl \
-    wget \
-    unzip \
-    zip \
-    openjdk-8-jdk \
-    python3-dev \
-    python3-pip \
-    python3-setuptools \
-    pkg-config \
-    autoconf \
-    libtool \
-    libssl-dev \
-    libffi-dev \
-    zlib1g-dev \
-    libgl1-mesa-dev \
-    libgles2-mesa-dev \
-    libsdl2-dev \
-    libgstreamer1.0-dev \
-    libgstreamer-plugins-base1.0-dev \
-    libjpeg-dev \
+    build-essential git curl wget unzip zip openjdk-8-jdk \
+    python3-dev python3-pip python3-setuptools \
+    pkg-config autoconf \
+    libtool libssl-dev libffi-dev zlib1g-dev libgl1-mesa-dev libgles2-mesa-dev \
+    libsdl2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libjpeg-dev \
     libfreetype6-dev \
  && rm -rf /var/lib/apt/lists/*
 
@@ -42,7 +25,7 @@ RUN pip3 install --upgrade pip
 # Cython pinned to an older stable release compatible with older Kivy builds
 RUN pip3 install Cython==0.23
 # Install Kivy and Buildozer pinned versions
-RUN pip3 install "kivy==${KIVY_VERSION}" buildozer==${BUILDOZER_VERSION}
+RUN pip3 install kivy==${KIVY_VERSION} buildozer==${BUILDOZER_VERSION}
 
 # Create a non-root user to run builds
 RUN useradd -m -s /bin/bash builder && mkdir -p /home/builder/.buildozer
