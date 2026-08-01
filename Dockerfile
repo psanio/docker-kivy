@@ -4,7 +4,8 @@ LABEL maintainer="psanio"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV KIVY_VERSION=1.10.1
-ENV BUILDOZER_VERSION=0.4
+# Pin buildozer to a Python-3-compatible commit from the upstream repo
+ENV BUILDOZER_COMMIT=105543da41f7a0c866a46ff07d10cb8137df2e7b
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV ANDROID_NDK_ROOT=/opt/android-ndk
 ENV ANDROID_HOME=/opt/android-sdk
@@ -21,11 +22,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
 # Python packages
-RUN pip3 install --upgrade pip
+RUN pip3 install --upgrade pip setuptools
 # Cython pinned to an older stable release compatible with older Kivy builds
 RUN pip3 install Cython==0.23
-# Install Kivy and Buildozer pinned versions
-RUN pip3 install kivy==${KIVY_VERSION} buildozer==${BUILDOZER_VERSION}
+# Install Buildozer from a pinned upstream commit (Python3-compatible) and pinned Kivy
+RUN pip3 install "git+https://github.com/kivy/buildozer.git@${BUILDOZER_COMMIT}" \
+ && pip3 install "kivy==${KIVY_VERSION}"
 
 # Create a non-root user to run builds
 RUN useradd -m -s /bin/bash builder && mkdir -p /home/builder/.buildozer
@@ -64,12 +66,20 @@ USER builder
 WORKDIR /home/builder
 
 # Add a simple helper script to show environment and build (optional)
-RUN echo "#!/bin/bash\necho 'Kivy:' ${KIVY_VERSION}\necho 'Buildozer:' ${BUILDOZER_VERSION}\necho 'ANDROID_SDK_ROOT=' ${ANDROID_SDK_ROOT}\necho 'ANDROID_NDK_ROOT=' ${ANDROID_NDK_ROOT}\nexec \"$@\"" > /home/builder/entry.sh \
- && chmod +x /home/builder/entry.sh
+RUN cat > /home/builder/entry.sh <<'EOF'
+#!/bin/bash
+
+echo "Kivy: ${KIVY_VERSION}"
+echo "Buildozer pinned commit: ${BUILDOZER_COMMIT}"
+echo "ANDROID_SDK_ROOT= ${ANDROID_SDK_ROOT}"
+echo "ANDROID_NDK_ROOT= ${ANDROID_NDK_ROOT}"
+
+exec "$@"
+EOF
+RUN chmod +x /home/builder/entry.sh
 
 # NOTE: Intentionally do NOT set ENTRYPOINT or CMD so the container can be used interactively
 # The builder user can run: buildozer android debug
 
-# Clean up apt caches (already removed earlier) and leave the image ready for builds
+# Clean up and leave the image ready for builds
 WORKDIR /home/builder
-
