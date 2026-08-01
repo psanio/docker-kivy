@@ -11,8 +11,9 @@ ENV ANDROID_NDK_ROOT=/opt/android-ndk
 ENV ANDROID_HOME=/opt/android-sdk
 ENV PATH=${PATH}:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/tools/bin:/opt/android-sdk/platform-tools:/opt/android-ndk
 
-# System packages
+# System packages (include tools to install alternate Python versions)
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
     build-essential git curl wget unzip zip openjdk-8-jdk \
     python3-dev python3-pip python3-setuptools \
     pkg-config autoconf \
@@ -21,13 +22,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfreetype6-dev \
  && rm -rf /var/lib/apt/lists/*
 
-# Python packages
-RUN pip3 install --upgrade pip setuptools
+# Install Python 3.10 from deadsnakes (Buildozer pinned commit requires >=3.10)
+RUN add-apt-repository ppa:deadsnakes/ppa -y \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends python3.10 python3.10-dev python3.10-distutils \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install pip for python3.10
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py \
+ && python3.10 /tmp/get-pip.py \
+ && rm /tmp/get-pip.py
+
+# Use python3.10's pip to install packages so entrypoints point to python3.10
+RUN python3.10 -m pip install --upgrade pip setuptools
 # Cython pinned to an older stable release compatible with older Kivy builds
-RUN pip3 install Cython==0.23
+RUN python3.10 -m pip install Cython==0.23
 # Install Buildozer from a pinned upstream commit (Python3-compatible) and pinned Kivy
-RUN pip3 install "git+https://github.com/kivy/buildozer.git@${BUILDOZER_COMMIT}" \
- && pip3 install "kivy==${KIVY_VERSION}"
+RUN python3.10 -m pip install "git+https://github.com/kivy/buildozer.git@${BUILDOZER_COMMIT}" \
+ && python3.10 -m pip install "kivy==${KIVY_VERSION}"
+
+# Verify buildozer is installed (will be available as /usr/local/bin/buildozer with a python3.10 shebang)
+RUN /usr/local/bin/python3.10 -m pip show buildozer || true
 
 # Create a non-root user to run builds
 RUN useradd -m -s /bin/bash builder && mkdir -p /home/builder/.buildozer
@@ -74,12 +89,13 @@ echo "Buildozer pinned commit: ${BUILDOZER_COMMIT}"
 echo "ANDROID_SDK_ROOT= ${ANDROID_SDK_ROOT}"
 echo "ANDROID_NDK_ROOT= ${ANDROID_NDK_ROOT}"
 
+echo "Python runtime: $(python3 --version)"
 exec "$@"
 EOF
 RUN chmod +x /home/builder/entry.sh
 
 # NOTE: Intentionally do NOT set ENTRYPOINT or CMD so the container can be used interactively
-# The builder user can run: buildozer android debug
+# The builder user can run: /usr/local/bin/buildozer android debug
 
 # Clean up and leave the image ready for builds
 WORKDIR /home/builder
