@@ -1,5 +1,5 @@
 # Dockerfile for building Kivy + Buildozer targeting Android 4.1 (API 16)
-FROM thewtex/opengl:18.04
+FROM thewtex/opengl:ubuntu1804
 LABEL maintainer="psanio"
 
 ENV DEBIAN_FRONTEND=noninteractive
