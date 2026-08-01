@@ -4,7 +4,7 @@ LABEL maintainer="psanio"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV KIVY_VERSION=1.10.1
-ENV BUILDOZER_VERSION=0.40.0
+ENV BUILDOZER_VERSION=0.4
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV ANDROID_NDK_ROOT=/opt/android-ndk
 ENV ANDROID_HOME=/opt/android-sdk
