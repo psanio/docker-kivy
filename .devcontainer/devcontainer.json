@@ -1,9 +1,6 @@
 {
   "name": "kivy-android-4.1",
-  "build": {
-    "dockerfile": "../Dockerfile",
-    "context": ".."
-  },
+  "image": "thewtex/opengl:ubuntu1804",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -11,11 +8,11 @@
       ]
     }
   },
-  "remoteUser": "builder",
-  "workspaceFolder": "/home/builder/app",
-  "postCreateCommand": "echo 'Container ready'; true",
+  "remoteUser": "root",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "echo 'Codespace base image ready'",
   "forwardPorts": [],
   "mounts": [
-    "source=${localWorkspaceFolder},target=/home/builder/app,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
   ]
 }
