@@ -1,6 +1,9 @@
 {
   "name": "kivy-android-4.1",
-  "image": "thewtex/opengl:ubuntu1804",
+  "image": "ubuntu:18.04",
+  "remoteUser": "root",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "apt-get update && apt-get install -y --no-install-recommends build-essential git curl wget unzip zip ca-certificates software-properties-common gnupg2 lsb-release && echo 'base ready'",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -8,8 +11,9 @@
       ]
     }
   },
-  "remoteUser": "root",
-  "workspaceFolder": "/workspace",
-  "postCreateCommand": "echo 'Codespace base image ready'",
-  "forwardPorts": []
+  "forwardPorts": [],
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+  ]
 }
+
