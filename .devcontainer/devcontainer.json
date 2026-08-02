@@ -11,8 +11,5 @@
   "remoteUser": "root",
   "workspaceFolder": "/workspace",
   "postCreateCommand": "echo 'Codespace base image ready'",
-  "forwardPorts": [],
-  "mounts": [
-    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
-  ]
+  "forwardPorts": []
 }
